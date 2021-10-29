@@ -23,7 +23,6 @@ function App() {
         <p>
           HELLO, THIS IS TEAM 8!
         </p>
-        <p>Team members: Hy and Ketzia</p>
       </header>
       <p className="random">{random_sum()}</p>
     </div>
