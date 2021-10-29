@@ -22,6 +22,26 @@ jobs:
       - attach_workspace:               # Attach the workflow's workspace to the current container
           at: .
       - run: npm run test               # Run tests
+  save:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/node:14
+    steps:
+      - attach_workspace:
+          at: .
+      - store_artifacts:                # store the artifacts after the project is built, to be used by deployment later
+          path: ./build
+          destination: build/
+  deploy:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/node:14
+    steps:
+      - attach_workspace:
+          at: .
+      - run:                            # Automatic deploy to Firebase
+          name: Deploy Master to Firebase
+          command: ./node_modules/.bin/firebase deploy --token=$FIREBASE_DEPLOY_TOKEN
 
 # Invoke jobs via workflows
 workflows:
@@ -31,3 +51,13 @@ workflows:
     - test:
         requires:
           - build
+    - save:
+        requires:
+          - test
+    - deploy:
+        requires:
+          - test
+        filters:          # Deploy from master branch only
+          branches:
+            only:
+              - master
